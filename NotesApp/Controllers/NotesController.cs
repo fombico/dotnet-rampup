@@ -1,30 +1,51 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using NotesApp.Models;
+using NotesApp.Services;
 
 namespace NotesApp.Controllers
 {
     [Route("api/[controller]")]
     public class NotesController : Controller
     {
+        private readonly NoteService _noteService;
+
+        public NotesController(NoteService noteService)
+        {
+            _noteService = noteService;
+        }
+        
         // GET api/notes
         [HttpGet]
         public IEnumerable<Note> Get()
         {
-            return new Note[] { new Note() { Id = 1, Body = "Note 1"} };
+            return _noteService.GetNotes();
         }
 
         // GET api/notes/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet("{id}", Name = "GetNote")]
+        public IActionResult Get(int id)
         {
-            return "value";
+            var todoItem = _noteService.GetById(id);
+            if (todoItem == null)
+            {
+                return NotFound();
+            }
+            return new ObjectResult(todoItem);
         }
 
         // POST api/notes
         [HttpPost]
-        public void Post([FromBody] string value)
+        public IActionResult Post([FromBody] Note note)
         {
+            if (note == null)
+            {
+                return BadRequest();
+            }
+
+            _noteService.Add(note);
+
+            return CreatedAtRoute("GetNote", new Note { Id = note.Id}, note);
         }
 
         // PUT api/notes/5
