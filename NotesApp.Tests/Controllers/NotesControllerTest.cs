@@ -16,6 +16,7 @@ namespace NotesApp.Tests.Controllers
         public NotesControllerTest()
         {
             _server = new TestServer(new WebHostBuilder()
+                .UseEnvironment("Integration Test")
                 .UseStartup<Startup>());
             _client = _server.CreateClient();
         }
