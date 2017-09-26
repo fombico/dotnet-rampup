@@ -30,3 +30,15 @@ jobs:
     params:
       manifest: repo/NotesApp/ci/manifest.yml
       path: ./build-output/publish
+
+- name: smoke-test
+  plan:
+  - get: repo
+    passed: [test]
+  - get: deploy
+    passed: [test]
+    trigger: true
+  - task: smoke-test
+    file: repo/NotesApp/ci/smoke-test.yml
+    params:
+      Endpoint: http://notes.local.pcfdev.io
