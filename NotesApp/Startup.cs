@@ -21,7 +21,7 @@ namespace NotesApp
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        public IConfiguration Configuration { get; set; }
         public IHostingEnvironment Environment { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -35,11 +35,12 @@ namespace NotesApp
                 }
                 else
                 {
-                    var hostname = "localhost";
-                    var name = "notes";
-                    var username = "root";
-                    var password = "password";
-                    opt.UseMySql($@"Server={hostname};database={name};uid={username};pwd={password};");    
+                    var hostname = $@"{Configuration["DB_HOST"]}";
+                    var name = $@"{Configuration["DB_NAME"]}";
+                    var username = $@"{Configuration["DB_USER"]}";
+                    var password = $@"{Configuration["DB_PASS"]}";
+                    Console.WriteLine($@"Server={hostname};database={name};uid={username};pwd={password};");
+                    opt.UseMySql($@"Server={hostname};database={name};uid={username};pwd={password};");
                 }
             });
 
@@ -54,6 +55,15 @@ namespace NotesApp
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }
+
+            if (!env.IsEnvironment("Integration Test"))
+            {
+                Configuration = new ConfigurationBuilder()
+                    .SetBasePath(env.ContentRootPath)
+                    .AddJsonFile("appsettings.json")
+                    .AddEnvironmentVariables()
+                    .Build();
             }
 
             Environment = env;
