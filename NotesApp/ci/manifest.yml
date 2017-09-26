@@ -3,3 +3,5 @@ applications:
 - name: notes
   host: notes
   buildpack: https://github.com/cloudfoundry/dotnet-core-buildpack.git
+  services:
+  - notes-db

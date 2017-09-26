@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NotesApp.Models;
 using NotesApp.Services;
+using Steeltoe.Extensions.Configuration;
 
 namespace NotesApp
 {
@@ -35,10 +36,10 @@ namespace NotesApp
                 }
                 else
                 {
-                    var hostname = $@"{Configuration["DB_HOST"]}";
-                    var name = $@"{Configuration["DB_NAME"]}";
-                    var username = $@"{Configuration["DB_USER"]}";
-                    var password = $@"{Configuration["DB_PASS"]}";
+                    var hostname = $@"{Configuration["vcap:services:p-mysql:0:credentials:hostname"]}";
+                    var name     = $@"{Configuration["vcap:services:p-mysql:0:credentials:name"]}";
+                    var username = $@"{Configuration["vcap:services:p-mysql:0:credentials:username"]}";
+                    var password = $@"{Configuration["vcap:services:p-mysql:0:credentials:password"]}";
                     Console.WriteLine($@"Server={hostname};database={name};uid={username};pwd={password};");
                     opt.UseMySql($@"Server={hostname};database={name};uid={username};pwd={password};");
                 }
@@ -63,6 +64,7 @@ namespace NotesApp
                     .SetBasePath(env.ContentRootPath)
                     .AddJsonFile("appsettings.json")
                     .AddEnvironmentVariables()
+                    .AddCloudFoundry()
                     .Build();
             }
 
