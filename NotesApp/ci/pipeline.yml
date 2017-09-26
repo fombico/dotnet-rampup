@@ -1,0 +1,16 @@
+---
+resources:
+- name: repo
+  type: git
+  source:
+    uri: {{github-repository}}
+    branch: master
+    private_key: {{github-private-key}}
+
+jobs:
+- name: test
+  plan:
+  - get: repo
+    trigger: true
+  - task: test
+    file: repo/NotesApp/ci/test.yml
