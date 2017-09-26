@@ -1,0 +1,22 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: microsoft/dotnet
+
+inputs:
+  - name: repo
+
+outputs:
+  - name: build-output
+
+run:
+  path: bash
+  args:
+  - -exc
+  - |
+    cd repo/NotesApp
+    dotnet restore
+    dotnet publish
+    cp -r bin/Debug/netcoreapp2.0/publish  ../../build-output
