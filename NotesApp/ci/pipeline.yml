@@ -7,6 +7,16 @@ resources:
     branch: master
     private_key: {{github-private-key}}
 
+- name: deploy
+  type: cf
+  source:
+    api: api.local.pcfdev.io
+    username: admin
+    password: admin
+    organization: pcfdev-org
+    space: pcfdev-space
+    skip_cert_check: true
+
 jobs:
 - name: test
   plan:
@@ -14,3 +24,9 @@ jobs:
     trigger: true
   - task: test
     file: repo/NotesApp/ci/test.yml
+  - task: build
+    file: repo/NotesApp/ci/build.yml
+  - put: deploy
+    params:
+      manifest: repo/NotesApp/ci/manifest.yml
+      path: ./build-output/publish
