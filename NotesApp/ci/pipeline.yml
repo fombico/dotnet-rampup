@@ -30,6 +30,7 @@ jobs:
     params:
       manifest: repo/NotesApp/ci/manifest.yml
       path: ./build-output/publish
+      current_app_name: notes
 
 - name: smoke-test
   plan:
