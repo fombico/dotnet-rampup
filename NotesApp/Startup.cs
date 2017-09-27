@@ -12,14 +12,26 @@ using Microsoft.Extensions.Options;
 using NotesApp.Models;
 using NotesApp.Services;
 using Steeltoe.Extensions.Configuration;
+using Steeltoe.Extensions.Configuration.CloudFoundry;
 
 namespace NotesApp
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IHostingEnvironment env)
         {
             Configuration = configuration;
+            if (!env.IsEnvironment("Integration Test"))
+            {
+                Configuration = new ConfigurationBuilder()
+                    .SetBasePath(env.ContentRootPath)
+                    .AddJsonFile("appsettings.json")
+                    .AddEnvironmentVariables()
+                    .AddCloudFoundry()
+                    .Build();
+            }
+
+            Environment = env;
         }
 
         public IConfiguration Configuration { get; set; }
@@ -36,16 +48,20 @@ namespace NotesApp
                 }
                 else
                 {
-                    var hostname = $@"{Configuration["vcap:services:p-mysql:0:credentials:hostname"]}";
-                    var name     = $@"{Configuration["vcap:services:p-mysql:0:credentials:name"]}";
-                    var username = $@"{Configuration["vcap:services:p-mysql:0:credentials:username"]}";
-                    var password = $@"{Configuration["vcap:services:p-mysql:0:credentials:password"]}";
-                    Console.WriteLine($@"Server={hostname};database={name};uid={username};pwd={password};");
+                    var hostname = Configuration["vcap:services:p-mysql:0:credentials:hostname"];
+                    var name     = Configuration["vcap:services:p-mysql:0:credentials:name"];
+                    var username = Configuration["vcap:services:p-mysql:0:credentials:username"];
+                    var password = Configuration["vcap:services:p-mysql:0:credentials:password"];
                     opt.UseMySql($@"Server={hostname};database={name};uid={username};pwd={password};");
                 }
             });
 
             services.AddTransient(typeof(NoteService));
+
+            services.AddOptions();
+
+            services.Configure<CloudFoundryApplicationOptions>(Configuration);
+            services.Configure<CloudFoundryServicesOptions>(Configuration);
 
             services.AddMvc();
         }
@@ -58,17 +74,6 @@ namespace NotesApp
                 app.UseDeveloperExceptionPage();
             }
 
-            if (!env.IsEnvironment("Integration Test"))
-            {
-                Configuration = new ConfigurationBuilder()
-                    .SetBasePath(env.ContentRootPath)
-                    .AddJsonFile("appsettings.json")
-                    .AddEnvironmentVariables()
-                    .AddCloudFoundry()
-                    .Build();
-            }
-
-            Environment = env;
             app.UseMvc();
         }
     }
