@@ -4,11 +4,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NotesApp.Actuators;
 using NotesApp.Models;
 using NotesApp.Services;
 using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
 using Steeltoe.Extensions.Configuration;
 using Steeltoe.Extensions.Configuration.CloudFoundry;
+using Steeltoe.Management.Endpoint.Health;
+using Steeltoe.Management.Endpoint.Info;
 
 namespace NotesApp
 {
@@ -56,6 +59,12 @@ namespace NotesApp
             services.Configure<CloudFoundryServicesOptions>(Configuration);
 
             services.AddMvc();
+
+            // Add custom health check contributor
+            services.AddSingleton<IHealthContributor, CustomHealthContributor>();
+
+            // Add actuator
+            services.AddHealthActuator(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,6 +76,9 @@ namespace NotesApp
             }
 
             app.UseMvc();
+
+            // Use actuator
+            app.UseHealthActuator();
         }
     }
 }
