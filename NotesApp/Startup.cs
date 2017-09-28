@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using NotesApp.Models;
 using NotesApp.Services;
+using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
 using Steeltoe.Extensions.Configuration;
 using Steeltoe.Extensions.Configuration.CloudFoundry;
 
@@ -48,11 +44,7 @@ namespace NotesApp
                 }
                 else
                 {
-                    var hostname = Configuration["vcap:services:p-mysql:0:credentials:hostname"];
-                    var name     = Configuration["vcap:services:p-mysql:0:credentials:name"];
-                    var username = Configuration["vcap:services:p-mysql:0:credentials:username"];
-                    var password = Configuration["vcap:services:p-mysql:0:credentials:password"];
-                    opt.UseMySql($@"Server={hostname};database={name};uid={username};pwd={password};");
+                    opt.UseMySql(Configuration);
                 }
             });
 
