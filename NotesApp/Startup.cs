@@ -9,6 +9,7 @@ using NotesApp.Services;
 using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
 using Steeltoe.Extensions.Configuration;
 using Steeltoe.Extensions.Configuration.CloudFoundry;
+using Steeltoe.Management.Endpoint.Trace;
 
 namespace NotesApp
 {
@@ -56,6 +57,7 @@ namespace NotesApp
             services.Configure<CloudFoundryServicesOptions>(Configuration);
 
             services.AddMvc();
+            services.AddTraceActuator(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,6 +69,7 @@ namespace NotesApp
             }
 
             app.UseMvc();
+            app.UseTraceActuator();
         }
     }
 }
